@@ -1,0 +1,64 @@
+{
+    "dependencyDashboard": true,
+    "enabledManagers": ["kubernetes", "custom.regex"],
+    "separateMultipleMajor": true,
+    "separateMajorMinor": true,
+    "ignoreTests": true,
+    "kubernetes": {
+      "fileMatch": ["gitlabrunner/deployment\\.yaml$", "minio/deployment\\.yaml$"]
+    },
+    "packageRules": [
+      {
+        "matchDatasources": ["docker"],
+        "matchPackageNames": [
+          "gitlab/gitlab-runner", "gitlab/gitlab-runner-helper"
+        ],
+        "versioning": "regex:^(?<compatibility>.*)-v16\\.(?<major>\\d+)\\.(?<minor>\\d+)?$"
+      },
+      {
+        "matchDatasources": ["docker"],
+        "matchPackageNames": [
+          "minio/minio", "minio/mc"
+        ],
+        "versioning": "regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T.*Z$"
+      },
+      {
+        "matchUpdateTypes": ["minor", "patch", "digest"],
+        "automerge": true
+      },
+      {
+        "matchUpdateTypes": ["major"],
+        "automerge": false
+      },
+      {
+        "groupName": "runner-update",
+        "matchPackageNames": [
+          "gitlab/gitlab-runner", "gitlab/gitlab-runner-helper"
+        ],
+        "matchUpdateTypes": [
+          "major",
+          "minor"
+        ]
+      },
+      {
+        "groupName": "minio-update",
+        "matchPackageNames": [
+          "minio/minio", "minio/mc"
+        ],
+        "matchUpdateTypes": [
+          "major",
+          "minor"
+        ]
+      }
+    ],
+    "customManagers": [
+      {
+        "customType": "regex",
+        "fileMatch": ["gitlabrunner/deployment\\.yaml$"],
+        "matchStrings": [
+          "helper_image\\s*=\\s*\"(?<depName>.*):(?<currentValue>.*)\""
+        ],
+        "datasourceTemplate": "docker"
+      }
+    ]
+}
